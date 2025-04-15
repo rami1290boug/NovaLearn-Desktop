@@ -27,8 +27,6 @@ public class AdminGenreController {
     @FXML
     private TableView<Genre> genreTable;
     @FXML
-    private TableColumn<Genre, Integer> idColumn;
-    @FXML
     private TableColumn<Genre, String> libelleColumn;
     @FXML
     private TableColumn<Genre, String> descriptionColumn;
@@ -53,7 +51,6 @@ public class AdminGenreController {
     }
 
     private void setupTable() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         libelleColumn.setCellValueFactory(new PropertyValueFactory<>("libelle"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         genreTable.setItems(genreList);

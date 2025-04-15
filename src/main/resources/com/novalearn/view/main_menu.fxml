@@ -3,26 +3,36 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
-<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/11" 
+<VBox spacing="20" alignment="CENTER" prefWidth="800" prefHeight="600" styleClass="root"
+      stylesheets="@../../styles/styles.css"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.MainMenuController">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-
-    <Label text="NovaLearn - Menu Principal" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
     
-    <VBox spacing="10" style="-fx-padding: 20;">
-        <Button text="Gestion des Utilisateurs" onAction="#handleUserManagement" 
-                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-min-width: 200;"/>
+    <!-- Header -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+        <Label text="NovaLearn" styleClass="logo"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Déconnexion" styleClass="button,secondary" onAction="#handleLogout"/>
+    </HBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+    
+    <!-- Main Content -->
+    <VBox styleClass="container" maxWidth="600" spacing="30" alignment="CENTER">
+        <Text text="Menu Principal" styleClass="title"/>
+        <Text text="Bienvenue dans votre espace NovaLearn" styleClass="subtitle"/>
         
-        <Button text="Gestion des Quiz" onAction="#handleQuizManagement" 
-                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-min-width: 200;"/>
-        
-        <Button text="Mes Réclamations" onAction="#handleUserReclamation" 
-                style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-min-width: 200;"/>
-        
-        <Button text="Administration des Réclamations" onAction="#handleAdminReclamation" 
-                style="-fx-background-color: #9C27B0; -fx-text-fill: white; -fx-min-width: 200;"/>
+        <VBox spacing="15" alignment="CENTER">
+            <Button text="Mes Réclamations" onAction="#handleUserReclamations" prefWidth="300"/>
+            <Button text="Administration des Réclamations" onAction="#handleAdminReclamations" prefWidth="300"/>
+            <Button text="Gestion des Quiz" onAction="#handleQuiz" prefWidth="300"/>
+            <Button text="Gestion des Utilisateurs" onAction="#handleUsers" prefWidth="300"/>
+        </VBox>
     </VBox>
+    
+    <Region VBox.vgrow="ALWAYS"/>
 </VBox> 

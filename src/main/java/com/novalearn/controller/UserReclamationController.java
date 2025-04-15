@@ -333,18 +333,43 @@ public class UserReclamationController {
     }
 
     private boolean validateInputs() {
-        if (titreField.getText().trim().isEmpty()) {
-            showError("Le titre est obligatoire");
-            return false;
+        StringBuilder errors = new StringBuilder();
+        
+        // Validation du titre
+        String titre = titreField.getText().trim();
+        if (titre.isEmpty()) {
+            errors.append("- Le titre est obligatoire\n");
+        } else if (titre.length() < 5) {
+            errors.append("- Le titre doit contenir au moins 5 caractères\n");
+        } else if (titre.length() > 100) {
+            errors.append("- Le titre ne doit pas dépasser 100 caractères\n");
         }
-        if (descriptionField.getText().trim().isEmpty()) {
-            showError("La description est obligatoire");
-            return false;
+        
+        // Validation de la description
+        String description = descriptionField.getText().trim();
+        if (description.isEmpty()) {
+            errors.append("- La description est obligatoire\n");
+        } else if (description.length() < 10) {
+            errors.append("- La description doit contenir au moins 10 caractères\n");
+        } else if (description.length() > 500) {
+            errors.append("- La description ne doit pas dépasser 500 caractères\n");
         }
+        
+        // Validation du genre
         if (genreComboBox.getValue() == null) {
-            showError("Le type de réclamation est obligatoire");
+            errors.append("- Le type de réclamation est obligatoire\n");
+        }
+        
+        // Si des erreurs sont présentes
+        if (errors.length() > 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de validation");
+            alert.setHeaderText("Veuillez corriger les erreurs suivantes :");
+            alert.setContentText(errors.toString());
+            alert.showAndWait();
             return false;
         }
+        
         return true;
     }
 

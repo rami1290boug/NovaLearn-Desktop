@@ -3,25 +3,49 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
-<VBox spacing="10" alignment="CENTER" prefWidth="400" prefHeight="300"
+<VBox spacing="20" alignment="CENTER" prefWidth="800" prefHeight="600" styleClass="root"
+      stylesheets="@../../styles/styles.css"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.LoginController">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-
-    <Label text="NovaLearn" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
     
-    <GridPane vgap="10" hgap="10" alignment="CENTER">
-        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="emailField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+    <!-- Header -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+        <Label text="NovaLearn" styleClass="logo"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <HBox spacing="20" alignment="CENTER_RIGHT">
+            <Button text="Accueil" styleClass="button,secondary"/>
+            <Button text="À propos" styleClass="button,secondary"/>
+            <Button text="Contact" styleClass="button,secondary"/>
+        </HBox>
+    </HBox>
 
-        <Label text="Mot de passe:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <PasswordField fx:id="passwordField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-    </GridPane>
-
-    <Button text="Se connecter" onAction="#handleLogin" 
-            style="-fx-background-color: #2196F3; -fx-text-fill: white;" prefWidth="200"/>
+    <Region VBox.vgrow="ALWAYS"/>
+    
+    <!-- Main Content -->
+    <VBox styleClass="container" maxWidth="400" spacing="30" alignment="CENTER">
+        <Text text="Connexion" styleClass="title"/>
+        
+        <VBox spacing="20">
+            <Label text="Email"/>
+            <TextField fx:id="emailField" promptText="Entrez votre email"/>
             
-    <Hyperlink text="Créer un compte" onAction="#handleRegister"/>
+            <Label text="Mot de passe"/>
+            <PasswordField fx:id="passwordField" promptText="Entrez votre mot de passe"/>
+            
+            <Hyperlink text="Mot de passe oublié ?" alignment="CENTER_RIGHT"/>
+        </VBox>
+        
+        <Button text="Se connecter" onAction="#handleLogin" prefWidth="200"/>
+        
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Pas encore de compte ?" styleClass="label"/>
+            <Hyperlink text="S'inscrire" onAction="#handleRegister"/>
+        </HBox>
+    </VBox>
+    
+    <Region VBox.vgrow="ALWAYS"/>
 </VBox> 

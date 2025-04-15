@@ -3,62 +3,71 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.AdminReclamationController">
-    <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-    </padding>
-
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Administration des Réclamations" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+<VBox spacing="20" alignment="CENTER" prefWidth="1000" prefHeight="700" styleClass="root"
+      stylesheets="@../../styles/styles.css"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.AdminReclamationController">
+    
+    <!-- Header -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+        <Label text="NovaLearn" styleClass="logo"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Gérer les Types" onAction="#handleManageGenres" 
-                style="-fx-background-color: #9C27B0; -fx-text-fill: white;"/>
+        <Button text="Retour" styleClass="button,secondary" onAction="#handleBack"/>
     </HBox>
 
-    <!-- Tableau des réclamations -->
-    <TableView fx:id="reclamationTable" prefHeight="300" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="titreColumn" text="Titre" prefWidth="150"/>
-            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250"/>
-            <TableColumn fx:id="genreColumn" text="Type" prefWidth="100"/>
-            <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="dateColumn" text="Date de Création" prefWidth="150"/>
-            <TableColumn fx:id="userIdColumn" text="ID Utilisateur" prefWidth="100"/>
-        </columns>
-    </TableView>
-
-    <!-- Formulaire de modification -->
-    <TitledPane text="Détails de la réclamation" expanded="false">
-        <VBox spacing="10">
-            <GridPane hgap="10" vgap="10">
-                <padding>
-                    <Insets top="10" right="10" bottom="10" left="10"/>
-                </padding>
-
-                <Label text="Titre:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="titreField" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                
-                <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="genreComboBox" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                
-                <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                <TextArea fx:id="descriptionField" prefWidth="300" prefHeight="100" wrapText="true" 
-                         GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                
-                <Label text="Statut:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                <ComboBox fx:id="statutComboBox" prefWidth="150" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-            </GridPane>
-
-            <HBox spacing="10" alignment="CENTER_RIGHT">
-                <Button text="Modifier" onAction="#handleUpdateReclamation" 
-                        style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
-                <Button text="Supprimer" onAction="#handleDeleteReclamation" 
-                        style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
-                <Button text="Actualiser" onAction="#handleRefresh" 
-                        style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-            </HBox>
+    <!-- Main Content -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <!-- Left Panel: Table -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="container">
+            <Text text="Liste des Réclamations" styleClass="title"/>
+            
+            <TableView fx:id="reclamationTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="titreColumn" text="Titre" prefWidth="200"/>
+                    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="300"/>
+                    <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="genreColumn" text="Type" prefWidth="100"/>
+                    <TableColumn fx:id="dateCreationColumn" text="Date" prefWidth="150"/>
+                </columns>
+            </TableView>
         </VBox>
-    </TitledPane>
+        
+        <!-- Right Panel: Form -->
+        <VBox spacing="15" styleClass="container" minWidth="300">
+            <Text text="Détails" styleClass="title"/>
+            
+            <Label text="Titre"/>
+            <TextField fx:id="titreField"/>
+            
+            <Label text="Description"/>
+            <TextArea fx:id="descriptionField" wrapText="true" prefRowCount="4"/>
+            
+            <Label text="Type"/>
+            <ComboBox fx:id="genreComboBox" maxWidth="Infinity"/>
+            
+            <Label text="Statut"/>
+            <ComboBox fx:id="statutComboBox" maxWidth="Infinity"/>
+            
+            <Region VBox.vgrow="ALWAYS"/>
+            
+            <HBox spacing="10">
+                <Button text="Gérer les Types" onAction="#handleManageGenres" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            
+            <HBox spacing="10">
+                <Button text="Mettre à jour" onAction="#handleUpdate" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Button text="Supprimer" onAction="#handleDelete" styleClass="delete-button" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            
+            <Button text="Effacer" onAction="#handleClear" styleClass="button,secondary" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
 </VBox> 

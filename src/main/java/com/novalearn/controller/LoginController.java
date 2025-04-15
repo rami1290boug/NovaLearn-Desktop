@@ -24,9 +24,14 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
+    private Stage primaryStage;
     private static final String URL = "jdbc:mysql://localhost:3306/novalearn";
     private static final String USER = "root";
     private static final String PASSWORD = "";
+
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
 
     @FXML
     private void handleLogin() {
@@ -97,7 +102,11 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/novalearn/view/main_menu.fxml"));
             Scene scene = new Scene(loader.load());
-            Stage stage = (Stage) emailField.getScene().getWindow();
+            
+            MainMenuController controller = loader.getController();
+            controller.setPrimaryStage(primaryStage != null ? primaryStage : (Stage) emailField.getScene().getWindow());
+            
+            Stage stage = primaryStage != null ? primaryStage : (Stage) emailField.getScene().getWindow();
             stage.setTitle("NovaLearn - Menu Principal");
             stage.setScene(scene);
         } catch (IOException e) {

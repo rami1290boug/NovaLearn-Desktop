@@ -1,7 +1,11 @@
 package com.novalearn.controller;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -28,20 +32,15 @@ public class AdminReclamationController {
     @FXML
     private TableView<Reclamation> reclamationTable;
     @FXML
-    private TableColumn<Reclamation, Integer> idColumn;
-    @FXML
     private TableColumn<Reclamation, String> titreColumn;
     @FXML
     private TableColumn<Reclamation, String> descriptionColumn;
     @FXML
-    private TableColumn<Reclamation, String> genreColumn;
-    @FXML
     private TableColumn<Reclamation, String> statutColumn;
     @FXML
-    private TableColumn<Reclamation, LocalDateTime> dateColumn;
+    private TableColumn<Reclamation, String> genreColumn;
     @FXML
-    private TableColumn<Reclamation, Integer> userIdColumn;
-    
+    private TableColumn<Reclamation, LocalDateTime> dateCreationColumn;
     @FXML
     private TextField titreField;
     @FXML
@@ -57,36 +56,52 @@ public class AdminReclamationController {
     private static final String URL = "jdbc:mysql://localhost:3306/novalearn";
     private static final String USER = "root";
     private static final String PASSWORD = "";
+    private Stage primaryStage;
 
     @FXML
-    public void initialize() {
+    private void initialize() {
         try {
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            setupTable();
+            
+            setupColumns();
             loadGenres();
-            setupComboBox();
+            setupComboBoxes();
             loadReclamations();
             setupTableSelection();
+            
         } catch (SQLException e) {
-            showAlert("Erreur de connexion", "Impossible de se connecter à la base de données", Alert.AlertType.ERROR);
+            showError("Erreur de connexion à la base de données");
             e.printStackTrace();
         }
     }
 
-    private void setupTable() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    private void setupColumns() {
         titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut"));
         genreColumn.setCellValueFactory(cellData -> {
             Genre genre = cellData.getValue().getGenre();
             return javafx.beans.binding.Bindings.createStringBinding(
                 () -> genre != null ? genre.getLibelle() : ""
             );
         });
-        statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut"));
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
-        userIdColumn.setCellValueFactory(new PropertyValueFactory<>("userId"));
-        reclamationTable.setItems(reclamationList);
+        dateCreationColumn.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
+    }
+
+    private void setupComboBoxes() {
+        statutComboBox.getItems().addAll("EN_ATTENTE", "EN_COURS", "RESOLUE");
+        genreComboBox.setItems(genreList);
+    }
+
+    private void setupTableSelection() {
+        reclamationTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                titreField.setText(newSelection.getTitre());
+                descriptionField.setText(newSelection.getDescription());
+                statutComboBox.setValue(newSelection.getStatut());
+                genreComboBox.setValue(newSelection.getGenre());
+            }
+        });
     }
 
     private void loadGenres() {
@@ -103,27 +118,10 @@ public class AdminReclamationController {
                 );
                 genreList.add(genre);
             }
-            
-            genreComboBox.setItems(genreList);
         } catch (SQLException e) {
-            showAlert("Erreur", "Impossible de charger les types de réclamation", Alert.AlertType.ERROR);
+            showError("Erreur de chargement des types de réclamation");
             e.printStackTrace();
         }
-    }
-
-    private void setupComboBox() {
-        statutComboBox.getItems().addAll("EN_ATTENTE", "EN_COURS", "RESOLUE");
-    }
-
-    private void setupTableSelection() {
-        reclamationTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                titreField.setText(newSelection.getTitre());
-                descriptionField.setText(newSelection.getDescription());
-                statutComboBox.setValue(newSelection.getStatut());
-                genreComboBox.setValue(newSelection.getGenre());
-            }
-        });
     }
 
     private void loadReclamations() {
@@ -151,58 +149,59 @@ public class AdminReclamationController {
                 reclamation.setDescription(rs.getString("description"));
                 reclamation.setStatut(rs.getString("statut"));
                 reclamation.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
-
                 reclamation.setGenre(genre);
                 reclamationList.add(reclamation);
             }
+            reclamationTable.setItems(reclamationList);
         } catch (SQLException e) {
-            showAlert("Erreur", "Impossible de charger les réclamations", Alert.AlertType.ERROR);
+            showError("Erreur de chargement des réclamations");
             e.printStackTrace();
         }
     }
 
     @FXML
-    private void handleUpdateReclamation() {
+    private void handleUpdate() {
         Reclamation selectedReclamation = reclamationTable.getSelectionModel().getSelectedItem();
         if (selectedReclamation == null) {
-            showAlert("Erreur", "Veuillez sélectionner une réclamation", Alert.AlertType.WARNING);
+            showError("Veuillez sélectionner une réclamation");
             return;
         }
 
-        if (titreField.getText().isEmpty() || descriptionField.getText().isEmpty() || 
-            genreComboBox.getValue() == null || statutComboBox.getValue() == null) {
-            showAlert("Erreur", "Veuillez remplir tous les champs", Alert.AlertType.WARNING);
-            return;
-        }
-
-        String query = "UPDATE reclamation SET titre = ?, description = ?, statut = ?, genre_id = ? WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, titreField.getText());
-            pstmt.setString(2, descriptionField.getText());
-            pstmt.setString(3, statutComboBox.getValue());
-            pstmt.setInt(4, genreComboBox.getValue().getId());
-            pstmt.setInt(5, selectedReclamation.getId());
-            
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                selectedReclamation.setTitre(titreField.getText());
-                selectedReclamation.setDescription(descriptionField.getText());
-                selectedReclamation.setStatut(statutComboBox.getValue());
-                selectedReclamation.setGenre(genreComboBox.getValue());
-                reclamationTable.refresh();
-                showAlert("Succès", "La réclamation a été mise à jour", Alert.AlertType.INFORMATION);
+        if (validateInputs()) {
+            String query = "UPDATE reclamation SET titre = ?, description = ?, statut = ?, genre_id = ? WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+                pstmt.setString(1, titreField.getText());
+                pstmt.setString(2, descriptionField.getText());
+                pstmt.setString(3, statutComboBox.getValue());
+                Genre selectedGenre = genreComboBox.getValue();
+                if (selectedGenre != null) {
+                    pstmt.setInt(4, selectedGenre.getId());
+                } else {
+                    pstmt.setNull(4, java.sql.Types.INTEGER);
+                }
+                pstmt.setInt(5, selectedReclamation.getId());
+                
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows > 0) {
+                    selectedReclamation.setTitre(titreField.getText());
+                    selectedReclamation.setDescription(descriptionField.getText());
+                    selectedReclamation.setStatut(statutComboBox.getValue());
+                    selectedReclamation.setGenre(selectedGenre);
+                    reclamationTable.refresh();
+                    showAlert("Succès", "La réclamation a été mise à jour", Alert.AlertType.INFORMATION);
+                }
+            } catch (SQLException e) {
+                showError("Erreur de mise à jour de la réclamation");
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            showAlert("Erreur", "Impossible de mettre à jour la réclamation", Alert.AlertType.ERROR);
-            e.printStackTrace();
         }
     }
 
     @FXML
-    private void handleDeleteReclamation() {
+    private void handleDelete() {
         Reclamation selectedReclamation = reclamationTable.getSelectionModel().getSelectedItem();
         if (selectedReclamation == null) {
-            showAlert("Erreur", "Veuillez sélectionner une réclamation", Alert.AlertType.WARNING);
+            showError("Veuillez sélectionner une réclamation");
             return;
         }
 
@@ -223,17 +222,50 @@ public class AdminReclamationController {
                     showAlert("Succès", "La réclamation a été supprimée", Alert.AlertType.INFORMATION);
                 }
             } catch (SQLException e) {
-                showAlert("Erreur", "Impossible de supprimer la réclamation", Alert.AlertType.ERROR);
+                showError("Erreur de suppression de la réclamation");
                 e.printStackTrace();
             }
         }
     }
 
     @FXML
-    private void handleRefresh() {
-        loadReclamations();
-        loadGenres();
+    private void handleClear() {
         clearFields();
+    }
+
+    @FXML
+    private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/novalearn/view/main_menu.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            showError("Erreur lors du retour au menu principal");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleManageGenres() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/novalearn/view/admin_genre.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Gestion des Types de Réclamation");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            // Ajouter un écouteur pour rafraîchir la liste quand la fenêtre est fermée
+            stage.setOnHidden(e -> {
+                loadGenres();
+                loadReclamations();
+            });
+        } catch (IOException e) {
+            showError("Impossible d'ouvrir la fenêtre de gestion des types");
+            e.printStackTrace();
+        }
     }
 
     private void clearFields() {
@@ -241,6 +273,47 @@ public class AdminReclamationController {
         descriptionField.clear();
         statutComboBox.setValue(null);
         genreComboBox.setValue(null);
+    }
+
+    private boolean validateInputs() {
+        StringBuilder errors = new StringBuilder();
+        
+        String titre = titreField.getText().trim();
+        if (titre.isEmpty()) {
+            errors.append("- Le titre est obligatoire\n");
+        } else if (titre.length() < 5) {
+            errors.append("- Le titre doit contenir au moins 5 caractères\n");
+        } else if (titre.length() > 100) {
+            errors.append("- Le titre ne doit pas dépasser 100 caractères\n");
+        }
+        
+        String description = descriptionField.getText().trim();
+        if (description.isEmpty()) {
+            errors.append("- La description est obligatoire\n");
+        } else if (description.length() < 10) {
+            errors.append("- La description doit contenir au moins 10 caractères\n");
+        } else if (description.length() > 500) {
+            errors.append("- La description ne doit pas dépasser 500 caractères\n");
+        }
+        
+        if (statutComboBox.getValue() == null || statutComboBox.getValue().trim().isEmpty()) {
+            errors.append("- Le statut est obligatoire\n");
+        }
+
+        if (genreComboBox.getValue() == null) {
+            errors.append("- Le type de réclamation est obligatoire\n");
+        }
+        
+        if (errors.length() > 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de validation");
+            alert.setHeaderText("Veuillez corriger les erreurs suivantes :");
+            alert.setContentText(errors.toString());
+            alert.showAndWait();
+            return false;
+        }
+        
+        return true;
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
@@ -269,24 +342,15 @@ public class AdminReclamationController {
         }
     }
 
-    @FXML
-    private void handleManageGenres() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/novalearn/view/admin_genre.fxml"));
-            Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Gestion des Types de Réclamation");
-            stage.setScene(new Scene(root));
-            stage.show();
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
 
-            // Ajouter un écouteur pour rafraîchir la liste des genres quand la fenêtre est fermée
-            stage.setOnHidden(e -> {
-                loadGenres();
-                loadReclamations();
-            });
-        } catch (IOException e) {
-            showAlert("Erreur", "Impossible d'ouvrir la fenêtre de gestion des types", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 } 
