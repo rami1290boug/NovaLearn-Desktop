@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/11" 
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.MainMenuController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="NovaLearn - Menu Principal" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    
+    <VBox spacing="10" style="-fx-padding: 20;">
+        <Button text="Gestion des Utilisateurs" onAction="#handleUserManagement" 
+                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-min-width: 200;"/>
+        
+        <Button text="Gestion des Quiz" onAction="#handleQuizManagement" 
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-min-width: 200;"/>
+        
+        <Button text="Mes Réclamations" onAction="#handleUserReclamation" 
+                style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-min-width: 200;"/>
+        
+        <Button text="Administration des Réclamations" onAction="#handleAdminReclamation" 
+                style="-fx-background-color: #9C27B0; -fx-text-fill: white; -fx-min-width: 200;"/>
+    </VBox>
+</VBox> 

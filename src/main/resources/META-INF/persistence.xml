@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+    <persistence-unit name="NovalearnPU">
+        <!-- List your managed entity classes, or enable classpath scanning if supported -->
+        <class>com.novalearn.entity.User</class>
+        <class>com.novalearn.entity.Quiz</class>
+        <class>com.novalearn.entity.Question</class>
+        <class>com.novalearn.entity.QuizSubmission</class>
+        <class>com.novalearn.entity.Reclamation</class>
+
+        <properties>
+            <!-- JDBC connection settings -->
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/novalearn?useSSL=false&amp;serverTimezone=UTC"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+
+            <!-- Hibernate dialect for MySQL -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
+
+            <!-- Automatically update your schema on startup -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <!-- Options:
+                 update: update the schema (does not drop data)
+                 create: create schema every time (drops previous data)
+                 create-drop: create schema at startup and drop at shutdown
+                 validate: only validate the schema, no changes made -->
+
+            <!-- Optional: show SQL statements -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>

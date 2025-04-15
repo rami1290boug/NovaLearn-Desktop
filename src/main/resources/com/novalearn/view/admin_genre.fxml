@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.AdminGenreController">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Gestion des Types de Réclamation" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    
+    <!-- Formulaire d'ajout/modification -->
+    <GridPane hgap="10" vgap="10">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <Label text="Libellé:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="libelleField" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        
+        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextArea fx:id="descriptionField" prefWidth="300" prefHeight="100" wrapText="true" 
+                 GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Button text="Ajouter" onAction="#handleAdd" 
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+            <Button text="Modifier" onAction="#handleUpdate" 
+                    style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
+            <Button text="Supprimer" onAction="#handleDelete" 
+                    style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+            <Button text="Effacer" onAction="#handleClear" 
+                    style="-fx-background-color: #9E9E9E; -fx-text-fill: white;"/>
+        </HBox>
+    </GridPane>
+
+    <!-- Liste des genres -->
+    <TableView fx:id="genreTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="libelleColumn" text="Libellé" prefWidth="200"/>
+            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="400"/>
+        </columns>
+    </TableView>
+</VBox> 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="400" prefHeight="300"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.LoginController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="NovaLearn" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+    
+    <GridPane vgap="10" hgap="10" alignment="CENTER">
+        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="emailField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Mot de passe:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <PasswordField fx:id="passwordField" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    </GridPane>
+
+    <Button text="Se connecter" onAction="#handleLogin" 
+            style="-fx-background-color: #2196F3; -fx-text-fill: white;" prefWidth="200"/>
+            
+    <Hyperlink text="Créer un compte" onAction="#handleRegister"/>
+</VBox> 

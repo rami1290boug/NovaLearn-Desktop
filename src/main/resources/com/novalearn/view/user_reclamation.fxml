@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/11" 
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.UserReclamationController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Mes Réclamations" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Retour" onAction="#handleBack" style="-fx-background-color: #757575; -fx-text-fill: white;"/>
+    </HBox>
+
+    <GridPane vgap="10" hgap="10">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <Label text="Titre:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="titreField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextArea fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="1" 
+                  prefRowCount="3" wrapText="true"/>
+
+        <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <ComboBox fx:id="genreComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Button text="Ajouter" onAction="#handleAdd" 
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+            <Button text="Modifier" onAction="#handleUpdate" 
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+            <Button text="Supprimer" onAction="#handleDelete" 
+                    style="-fx-background-color: #F44336; -fx-text-fill: white;"/>
+            <Button text="Effacer" onAction="#handleClear" 
+                    style="-fx-background-color: #757575; -fx-text-fill: white;"/>
+        </HBox>
+    </GridPane>
+
+    <ListView fx:id="reclamationListView" VBox.vgrow="ALWAYS" styleClass="reclamation-list">
+    </ListView>
+
+</VBox> 

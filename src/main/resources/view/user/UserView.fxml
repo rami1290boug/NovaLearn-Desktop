@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.novalearn.controller.user.userController">
+
+    <top>
+        <ToolBar>
+            <Button text="New"   onAction="#onNew"/>
+            <Button text="Edit"  onAction="#onEdit"/>
+            <Button text="Delete" onAction="#onDelete"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <StackPane>
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+            <!-- LIST -->
+            <VBox fx:id="listPane" spacing="5">
+                <TableView fx:id="table" prefHeight="300" prefWidth="600">
+                    <columns>
+                        <TableColumn fx:id="colId"    text="ID"    prefWidth="50"/>
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="200"/>
+                        <!-- more columns if desired -->
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- FORM -->
+            <ScrollPane fx:id="formPane" visible="false" fitToWidth="true">
+                <VBox spacing="6">
+                    <padding><Insets top="10" right="0" bottom="0" left="0"/></padding>
+                    <GridPane hgap="10" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Row 0 -->
+                        <Label text="Email*:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfEmail" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <!-- Row 1 -->
+                        <Label text="Password*:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <PasswordField fx:id="tfPassword" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <!-- Row 2 -->
+                        <Label text="Nom:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfNom" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <!-- Row 3 -->
+                        <Label text="Prénom:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfPrenom" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <!-- Row 4 -->
+                        <Label text="Phone*:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfPhone" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                        <!-- Row 5 -->
+                        <Label text="Age*:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfAge" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <!-- Row 6 -->
+                        <Label text="Genre*:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfGenre" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                        <!-- Row 7 -->
+                        <Label text="Role:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfRole" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <!-- Row 8 -->
+                        <Label text="ID Fils:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfIdFils" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                        <!-- Row 9 -->
+                        <Label text="Difficulté:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfDifficulte" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                        <!-- Row 10 -->
+                        <Label text="Niv Difficulté:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfNivDifficulte" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+                        <!-- Row 11 -->
+                        <Label text="Specialité:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfSpecialite" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+                        <!-- Row 12 -->
+                        <Label text="Is Verified:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+                        <CheckBox fx:id="cbVerified" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+
+                        <!-- Row 13 -->
+                        <Label text="Verification Token:" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfVerificationToken" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <padding><Insets top="10" right="0" bottom="0" left="0"/></padding>
+                        <Button text="Save"   onAction="#onSave"/>
+                        <Button text="Cancel" onAction="#onCancel"/>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </StackPane>
+    </center>
+</BorderPane>
