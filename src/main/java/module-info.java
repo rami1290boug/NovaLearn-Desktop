@@ -4,6 +4,10 @@ module com.novalearn {
     requires javafx.fxml;
     requires java.sql;
 
+    // PDFBox modules
+    requires org.apache.pdfbox;
+    requires org.apache.fontbox;
+
     // JPA / Hibernate
     requires jakarta.persistence;
     requires jakarta.validation;

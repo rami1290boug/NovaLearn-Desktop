@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/11" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.novalearn.controller.ReclamationDashboardController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Tableau de Bord des Réclamations" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <!-- Statistiques Générales -->
+    <HBox spacing="20">
+        <VBox styleClass="stat-card" spacing="10">
+            <Label text="Total des Réclamations" styleClass="stat-title"/>
+            <Label fx:id="totalReclamationsLabel" styleClass="stat-value"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" spacing="10">
+            <Label text="Temps Moyen de Résolution" styleClass="stat-title"/>
+            <Label fx:id="avgResolutionTimeLabel" styleClass="stat-value"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" spacing="10">
+            <Label text="Taux de Résolution" styleClass="stat-title"/>
+            <Label fx:id="resolutionRateLabel" styleClass="stat-value"/>
+        </VBox>
+    </HBox>
+
+    <!-- Graphiques -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Graphique des Statuts -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label text="Répartition par Statut" styleClass="chart-title"/>
+            <PieChart fx:id="statusChart" VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+        <!-- Graphique des Priorités -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label text="Répartition par Priorité" styleClass="chart-title"/>
+            <PieChart fx:id="priorityChart" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </HBox>
+
+    <!-- Tendances -->
+    <VBox spacing="10">
+        <Label text="Tendance des Réclamations" styleClass="chart-title"/>
+        <LineChart fx:id="trendChart">
+            <xAxis>
+                <CategoryAxis label="Date"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Nombre de Réclamations"/>
+            </yAxis>
+        </LineChart>
+    </VBox>
+
+    <!-- Tags les Plus Fréquents -->
+    <VBox spacing="10">
+        <Label text="Tags les Plus Fréquents" styleClass="chart-title"/>
+        <FlowPane fx:id="tagsFlowPane" hgap="10" vgap="10"/>
+    </VBox>
+
+    <!-- Actions -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Actualiser" onAction="#handleRefresh" 
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+        <Button text="Exporter en PDF" onAction="#handleExport" 
+                style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+    </HBox>
+
+</VBox> 

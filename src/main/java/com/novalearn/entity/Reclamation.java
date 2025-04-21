@@ -16,54 +16,58 @@ import jakarta.persistence.Table;
 public class Reclamation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
-    private String titre;
+    private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
-    private String statut; // EN_ATTENTE, EN_COURS, RESOLUE
+    private String status; // EN_ATTENTE, EN_COURS, RESOLUE
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime dateCreation;
+    @Column(nullable = false)
+    private String priority; // URGENT, NORMAL, FAIBLE
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private Long userId;
 
     public Reclamation() {
-        this.dateCreation = LocalDateTime.now();
-        this.statut = "EN_ATTENTE";
+        this.createdAt = LocalDateTime.now();
+        this.status = "EN_ATTENTE";
+        this.priority = "NORMAL";
     }
 
-    public Reclamation(String titre, String description, int userId) {
+    public Reclamation(String title, String description, Long userId) {
         this();
-        this.titre = titre;
+        this.title = title;
         this.description = description;
         this.userId = userId;
     }
 
     // Getters and Setters
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getTitre() {
-        return titre;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -74,20 +78,28 @@ public class Reclamation {
         this.description = description;
     }
 
-    public String getStatut() {
-        return statut;
+    public String getStatus() {
+        return status;
     }
 
-    public void setStatut(String statut) {
-        this.statut = statut;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
+    public String getPriority() {
+        return priority;
     }
 
-    public void setDateCreation(LocalDateTime dateCreation) {
-        this.dateCreation = dateCreation;
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Genre getGenre() {
@@ -98,11 +110,11 @@ public class Reclamation {
         this.genre = genre;
     }
 
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 } 

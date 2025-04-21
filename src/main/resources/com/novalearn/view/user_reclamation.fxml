@@ -1,50 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import java.net.URL?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/11" 
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.novalearn.controller.UserReclamationController">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.novalearn.controller.UserReclamationController"
+      styleClass="main-container">
     
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-
-    <HBox alignment="CENTER_LEFT" spacing="10">
-        <Label text="Mes Réclamations" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Retour" onAction="#handleBack" style="-fx-background-color: #757575; -fx-text-fill: white;"/>
+    <!-- En-tête avec statistiques -->
+    <HBox spacing="20" styleClass="stats-container">
+        <VBox styleClass="stat-box">
+            <Label text="Total" styleClass="stat-label"/>
+            <Label fx:id="totalLabel" text="0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-box">
+            <Label text="En attente" styleClass="stat-label"/>
+            <Label fx:id="enAttenteLabel" text="0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-box">
+            <Label text="En cours" styleClass="stat-label"/>
+            <Label fx:id="enCoursLabel" text="0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-box">
+            <Label text="Résolues" styleClass="stat-label"/>
+            <Label fx:id="resoluesLabel" text="0" styleClass="stat-value"/>
+        </VBox>
     </HBox>
 
-    <GridPane vgap="10" hgap="10">
-        <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-        </padding>
-
-        <Label text="Titre:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="titreField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <TextArea fx:id="descriptionField" GridPane.columnIndex="1" GridPane.rowIndex="1" 
-                  prefRowCount="3" wrapText="true"/>
-
-        <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <ComboBox fx:id="genreComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-
-        <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Button text="Ajouter" onAction="#handleAdd" 
-                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
-            <Button text="Modifier" onAction="#handleUpdate" 
-                    style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-            <Button text="Supprimer" onAction="#handleDelete" 
-                    style="-fx-background-color: #F44336; -fx-text-fill: white;"/>
-            <Button text="Effacer" onAction="#handleClear" 
-                    style="-fx-background-color: #757575; -fx-text-fill: white;"/>
+    <!-- Formulaire de réclamation -->
+    <VBox spacing="10" styleClass="form-container">
+        <TextField fx:id="titreField" promptText="Titre de la réclamation"/>
+        <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
+        <ComboBox fx:id="genreComboBox" promptText="Type de réclamation"/>
+        <HBox spacing="10">
+            <Button text="Ajouter" onAction="#handleAdd"/>
+            <Button text="Modifier" onAction="#handleUpdate"/>
+            <Button text="Supprimer" onAction="#handleDelete"/>
+            <Button text="Effacer" onAction="#handleClear"/>
         </HBox>
-    </GridPane>
+    </VBox>
 
-    <ListView fx:id="reclamationListView" VBox.vgrow="ALWAYS" styleClass="reclamation-list">
-    </ListView>
+    <!-- Barre de recherche et filtres -->
+    <HBox spacing="10" styleClass="search-container">
+        <TextField fx:id="searchField" promptText="Rechercher..." HBox.hgrow="ALWAYS"/>
+        <ComboBox fx:id="statusFilter" promptText="Statut"/>
+        <ComboBox fx:id="typeFilter" promptText="Type"/>
+        <DatePicker fx:id="dateFilter" promptText="Date"/>
+        <Button text="Réinitialiser" onAction="#handleResetFilter"/>
+    </HBox>
 
+    <!-- Options de tri -->
+    <HBox spacing="10" styleClass="sort-container">
+        <Label text="Trier par:"/>
+        <ComboBox fx:id="sortField"/>
+        <ComboBox fx:id="sortOrder"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Exporter PDF" onAction="#handleExportPDF"/>
+        <Button text="Exporter Excel" onAction="#handleExportExcel"/>
+    </HBox>
+
+    <!-- Liste des réclamations -->
+    <ListView fx:id="reclamationListView" VBox.vgrow="ALWAYS"/>
+
+    <!-- Boutons d'action -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Nouvelle réclamation" onAction="#handleNewReclamation"/>
+        <Button text="Paramètres" fx:id="settingsButton" onAction="#handleSettings"/>
+        <Button text="Retour" onAction="#handleBack"/>
+    </HBox>
+
+    <stylesheets>
+        <URL value="@../styles/styles.css"/>
+        <URL value="@../styles/user_reclamation.css"/>
+    </stylesheets>
 </VBox> 

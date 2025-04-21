@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.novalearn.controller.ReclamationController"
+      spacing="10"
+      padding="10">
+
+    <!-- Filtres -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Rechercher..." HBox.hgrow="ALWAYS"/>
+        <ComboBox fx:id="statusFilter" promptText="Statut"/>
+        <ComboBox fx:id="priorityFilter" promptText="Priorité"/>
+        <DatePicker fx:id="dateFilter" promptText="Date"/>
+        <Button text="Filtrer" onAction="#handleFilter"/>
+        <Button text="Réinitialiser" onAction="#handleReset"/>
+    </HBox>
+
+    <!-- Table des réclamations -->
+    <TableView fx:id="reclamationTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="titleColumn" text="Titre" prefWidth="200"/>
+            <TableColumn fx:id="statusColumn" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="priorityColumn" text="Priorité" prefWidth="100"/>
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <!-- Boutons d'action -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Nouvelle réclamation" onAction="#handleNew"/>
+        <Button text="Modifier" onAction="#handleEdit"/>
+        <Button text="Supprimer" onAction="#handleDelete"/>
+        <Button text="Chat" onAction="#handleOpenChat" styleClass="chat-button"/>
+    </HBox>
+
+</VBox> 

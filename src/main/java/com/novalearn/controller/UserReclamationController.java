@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 
 import com.novalearn.entity.Genre;
 import com.novalearn.entity.Reclamation;
+import com.novalearn.service.AccessibilityService;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,25 +21,97 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 public class UserReclamationController {
     @FXML private TextField titreField;
     @FXML private TextArea descriptionField;
     @FXML private ComboBox<Genre> genreComboBox;
     @FXML private ListView<Reclamation> reclamationListView;
+    @FXML private Button settingsButton;
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> statusFilter;
+    @FXML private ComboBox<String> typeFilter;
+    @FXML private DatePicker dateFilter;
+    @FXML private ComboBox<String> sortField;
+    @FXML private ComboBox<String> sortOrder;
+    @FXML private Label totalLabel;
+    @FXML private Label enAttenteLabel;
+    @FXML private Label enCoursLabel;
+    @FXML private Label resoluesLabel;
 
     private Connection connection;
     private Stage primaryStage;
     private int currentUserId = 1; // À remplacer par l'ID de l'utilisateur connecté
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private AccessibilityService accessibilityService;
+    private ObservableList<Reclamation> reclamations;
 
     @FXML
     public void initialize() {
+        accessibilityService = AccessibilityService.getInstance();
         setupListView();
         setupConnection();
+        setupFilters();
         loadGenres();
         loadReclamations();
         setupListViewSelection();
+        setupAccessibility();
+        setupKeyboardShortcuts();
+        updateStatistics();
+    }
+
+    private void setupAccessibility() {
+        // Appliquer les paramètres d'accessibilité
+        accessibilityService.applyAccessibilitySettings(titreField);
+        accessibilityService.applyAccessibilitySettings(descriptionField);
+        accessibilityService.applyAccessibilitySettings(genreComboBox);
+        accessibilityService.applyAccessibilitySettings(reclamationListView);
+
+        // Ajouter le bouton des paramètres d'accessibilité
+        settingsButton = new Button("Paramètres d'Accessibilité");
+        settingsButton.setOnAction(e -> showAccessibilitySettings());
+    }
+
+    private void setupKeyboardShortcuts() {
+        // Raccourcis clavier pour la synthèse vocale
+        titreField.setOnKeyPressed(this::handleKeyPress);
+        descriptionField.setOnKeyPressed(this::handleKeyPress);
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.F1) {
+            // Lire le texte du champ actif
+            TextInputControl source = (TextInputControl) event.getSource();
+            readText(source.getText());
+        }
+    }
+
+    private void readText(String text) {
+        if (accessibilityService.getSettings().isTextToSpeech()) {
+            // TODO: Implémenter la synthèse vocale
+            // Pour l'instant, on affiche juste une alerte
+            showInfo("Lecture du texte : " + text);
+        }
+    }
+
+    private void showAccessibilitySettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/novalearn/view/accessibility_settings.fxml"));
+            Parent root = loader.load();
+            
+            AccessibilitySettingsController controller = loader.getController();
+            Stage settingsStage = new Stage();
+            controller.setStage(settingsStage);
+            
+            settingsStage.setScene(new Scene(root));
+            settingsStage.setTitle("Paramètres d'Accessibilité");
+            settingsStage.show();
+        } catch (IOException e) {
+            showError("Erreur lors du chargement des paramètres d'accessibilité");
+            e.printStackTrace();
+        }
     }
 
     private void setupConnection() {
@@ -135,13 +209,13 @@ public class UserReclamationController {
                 if (empty || reclamation == null) {
                     setGraphic(null);
                 } else {
-                    titre.setText(reclamation.getTitre());
+                    titre.setText(reclamation.getTitle());
                     description.setText(reclamation.getDescription());
-                    status.setText(reclamation.getStatut());
+                    status.setText(reclamation.getStatus());
                     genre.setText(reclamation.getGenre() != null ? reclamation.getGenre().getLibelle() : "");
                     
                     // Style du statut
-                    switch (reclamation.getStatut()) {
+                    switch (reclamation.getStatus()) {
                         case "EN_ATTENTE":
                             status.setStyle(status.getStyle() + "-fx-background-color: #FFA726; -fx-text-fill: white;");
                             break;
@@ -153,17 +227,22 @@ public class UserReclamationController {
                             break;
                     }
                     
-                    date.setText(DATE_FORMATTER.format(reclamation.getDateCreation()));
+                    date.setText(reclamation.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
                     setGraphic(content);
                 }
             }
         });
+
+        // Ajouter le bouton des paramètres d'accessibilité à la liste
+        HBox buttonBox = new HBox(10);
+        buttonBox.getChildren().add(settingsButton);
+        // Ajouter buttonBox à l'interface appropriée
     }
 
     private void setupListViewSelection() {
         reclamationListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                titreField.setText(newSelection.getTitre());
+                titreField.setText(newSelection.getTitle());
                 descriptionField.setText(newSelection.getDescription());
                 genreComboBox.setValue(newSelection.getGenre());
             }
@@ -175,8 +254,8 @@ public class UserReclamationController {
                       "FROM reclamation r " +
                       "LEFT JOIN genre g ON r.genre_id = g.id " +
                       "WHERE r.user_id = ? " +
-                      "ORDER BY r.date_creation DESC";
-        ObservableList<Reclamation> reclamations = FXCollections.observableArrayList();
+                      "ORDER BY r.created_at DESC";
+        reclamations = FXCollections.observableArrayList();
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, currentUserId);
@@ -184,12 +263,12 @@ public class UserReclamationController {
 
             while (rs.next()) {
                 Reclamation reclamation = new Reclamation();
-                reclamation.setId(rs.getInt("id"));
-                reclamation.setTitre(rs.getString("titre"));
+                reclamation.setId(rs.getLong("id"));
+                reclamation.setTitle(rs.getString("title"));
                 reclamation.setDescription(rs.getString("description"));
-                reclamation.setStatut(rs.getString("statut"));
-                reclamation.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
-                reclamation.setUserId(rs.getInt("user_id"));
+                reclamation.setStatus(rs.getString("status"));
+                reclamation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                reclamation.setUserId(rs.getLong("user_id"));
 
                 if (rs.getObject("genre_id") != null) {
                     Genre genre = new Genre();
@@ -205,20 +284,141 @@ public class UserReclamationController {
             reclamationListView.setItems(reclamations);
         } catch (SQLException e) {
             showError("Erreur lors du chargement des réclamations");
+            e.printStackTrace();
         }
+    }
+
+    private void setupFilters() {
+        // Configuration des filtres de statut
+        statusFilter.getItems().addAll("Tous", "EN_ATTENTE", "EN_COURS", "RESOLVED");
+        statusFilter.setValue("Tous");
+        
+        // Configuration du filtre de type
+        typeFilter.setValue("Tous");
+        
+        // Configuration du tri
+        sortField.getItems().addAll("Date", "Titre", "Statut", "Type");
+        sortField.setValue("Date");
+        sortOrder.getItems().addAll("Croissant", "Décroissant");
+        sortOrder.setValue("Décroissant");
+        
+        // Listeners pour appliquer les filtres automatiquement
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        statusFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        typeFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        dateFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+    }
+
+    private void applyFilters() {
+        String searchText = searchField.getText().toLowerCase();
+        String status = statusFilter.getValue();
+        String type = typeFilter.getValue();
+        LocalDate date = dateFilter.getValue();
+
+        ObservableList<Reclamation> filteredList = reclamations.filtered(reclamation -> {
+            boolean matchesSearch = searchText.isEmpty() ||
+                                  reclamation.getTitle().toLowerCase().contains(searchText) ||
+                                  reclamation.getDescription().toLowerCase().contains(searchText);
+            
+            boolean matchesStatus = status.equals("Tous") ||
+                                  reclamation.getStatus().equals(status);
+            
+            boolean matchesType = type.equals("Tous") ||
+                                (reclamation.getGenre() != null &&
+                                 reclamation.getGenre().getLibelle().equals(type));
+            
+            boolean matchesDate = date == null ||
+                                reclamation.getCreatedAt().toLocalDate().equals(date);
+            
+            return matchesSearch && matchesStatus && matchesType && matchesDate;
+        });
+
+        reclamationListView.setItems(filteredList);
+        updateStatistics();
+    }
+
+    @FXML
+    private void handleSort() {
+        String field = sortField.getValue();
+        boolean ascending = sortOrder.getValue().equals("Croissant");
+        
+        reclamationListView.getItems().sort((r1, r2) -> {
+            int result = 0;
+            switch (field) {
+                case "Date":
+                    result = r1.getCreatedAt().compareTo(r2.getCreatedAt());
+                    break;
+                case "Titre":
+                    result = r1.getTitle().compareTo(r2.getTitle());
+                    break;
+                case "Statut":
+                    result = r1.getStatus().compareTo(r2.getStatus());
+                    break;
+                case "Type":
+                    String type1 = r1.getGenre() != null ? r1.getGenre().getLibelle() : "";
+                    String type2 = r2.getGenre() != null ? r2.getGenre().getLibelle() : "";
+                    result = type1.compareTo(type2);
+                    break;
+            }
+            return ascending ? result : -result;
+        });
+    }
+
+    @FXML
+    private void handleResetFilter() {
+        searchField.clear();
+        statusFilter.setValue("Tous");
+        typeFilter.setValue("Tous");
+        dateFilter.setValue(null);
+        sortField.setValue("Date");
+        sortOrder.setValue("Décroissant");
+        loadReclamations();
+    }
+
+    private void updateStatistics() {
+        ObservableList<Reclamation> items = reclamationListView.getItems();
+        
+        totalLabel.setText(String.valueOf(items.size()));
+        
+        long enAttente = items.stream()
+            .filter(r -> r.getStatus().equals("EN_ATTENTE"))
+            .count();
+        enAttenteLabel.setText(String.valueOf(enAttente));
+        
+        long enCours = items.stream()
+            .filter(r -> r.getStatus().equals("EN_COURS"))
+            .count();
+        enCoursLabel.setText(String.valueOf(enCours));
+        
+        long resolues = items.stream()
+            .filter(r -> r.getStatus().equals("RESOLVED"))
+            .count();
+        resoluesLabel.setText(String.valueOf(resolues));
+    }
+
+    @FXML
+    private void handleExportPDF() {
+        // TODO: Implémenter l'export PDF
+        showInfo("Export PDF en cours de développement");
+    }
+
+    @FXML
+    private void handleExportExcel() {
+        // TODO: Implémenter l'export Excel
+        showInfo("Export Excel en cours de développement");
     }
 
     @FXML
     private void handleAdd() {
         if (!validateInputs()) return;
 
-        String query = "INSERT INTO reclamation (titre, description, statut, date_creation, user_id, genre_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO reclamation (title, description, status, created_at, user_id, genre_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, titreField.getText());
             stmt.setString(2, descriptionField.getText());
             stmt.setString(3, "EN_ATTENTE");
             stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setInt(5, currentUserId);
+            stmt.setLong(5, currentUserId);
             
             if (genreComboBox.getValue() != null) {
                 stmt.setInt(6, genreComboBox.getValue().getId());
@@ -232,6 +432,7 @@ public class UserReclamationController {
             loadReclamations();
         } catch (SQLException e) {
             showError("Erreur lors de l'ajout de la réclamation");
+            e.printStackTrace();
         }
     }
 
@@ -243,14 +444,14 @@ public class UserReclamationController {
             return;
         }
 
-        if (!selected.getStatut().equals("EN_ATTENTE")) {
+        if (!selected.getStatus().equals("EN_ATTENTE")) {
             showError("Seules les réclamations en attente peuvent être modifiées");
             return;
         }
 
         if (!validateInputs()) return;
 
-        String query = "UPDATE reclamation SET titre = ?, description = ?, genre_id = ? WHERE id = ? AND statut = 'EN_ATTENTE'";
+        String query = "UPDATE reclamation SET title = ?, description = ?, genre_id = ? WHERE id = ? AND status = 'EN_ATTENTE'";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, titreField.getText());
             stmt.setString(2, descriptionField.getText());
@@ -261,7 +462,7 @@ public class UserReclamationController {
                 stmt.setNull(3, Types.INTEGER);
             }
             
-            stmt.setInt(4, selected.getId());
+            stmt.setLong(4, selected.getId());
 
             if (stmt.executeUpdate() > 0) {
                 showInfo("Réclamation modifiée avec succès");
@@ -272,6 +473,7 @@ public class UserReclamationController {
             }
         } catch (SQLException e) {
             showError("Erreur lors de la modification de la réclamation");
+            e.printStackTrace();
         }
     }
 
@@ -283,14 +485,14 @@ public class UserReclamationController {
             return;
         }
 
-        if (!selected.getStatut().equals("EN_ATTENTE")) {
+        if (!selected.getStatus().equals("EN_ATTENTE")) {
             showError("Seules les réclamations en attente peuvent être supprimées");
             return;
         }
 
-        String query = "DELETE FROM reclamation WHERE id = ? AND statut = 'EN_ATTENTE'";
+        String query = "DELETE FROM reclamation WHERE id = ? AND status = 'EN_ATTENTE'";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, selected.getId());
+            stmt.setLong(1, selected.getId());
 
             if (stmt.executeUpdate() > 0) {
                 showInfo("Réclamation supprimée avec succès");
@@ -301,6 +503,7 @@ public class UserReclamationController {
             }
         } catch (SQLException e) {
             showError("Erreur lors de la suppression de la réclamation");
+            e.printStackTrace();
         }
     }
 
@@ -326,6 +529,18 @@ public class UserReclamationController {
         }
     }
 
+    @FXML
+    private void handleNewReclamation() {
+        clearFields();
+        // Reset selection
+        reclamationListView.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    private void handleSettings() {
+        showAccessibilitySettings();
+    }
+
     private void clearFields() {
         titreField.clear();
         descriptionField.clear();
@@ -338,7 +553,7 @@ public class UserReclamationController {
         // Validation du titre
         String titre = titreField.getText().trim();
         if (titre.isEmpty()) {
-            errors.append("- Le titre est obligatoire\n");
+            errors.append("- Le titre is obligatoire\n");
         } else if (titre.length() < 5) {
             errors.append("- Le titre doit contenir au moins 5 caractères\n");
         } else if (titre.length() > 100) {
@@ -348,7 +563,7 @@ public class UserReclamationController {
         // Validation de la description
         String description = descriptionField.getText().trim();
         if (description.isEmpty()) {
-            errors.append("- La description est obligatoire\n");
+            errors.append("- La description is obligatoire\n");
         } else if (description.length() < 10) {
             errors.append("- La description doit contenir au moins 10 caractères\n");
         } else if (description.length() > 500) {
@@ -357,7 +572,7 @@ public class UserReclamationController {
         
         // Validation du genre
         if (genreComboBox.getValue() == null) {
-            errors.append("- Le type de réclamation est obligatoire\n");
+            errors.append("- Le type de réclamation is obligatoire\n");
         }
         
         // Si des erreurs sont présentes

@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import com.novalearn.entity.Genre;
@@ -21,11 +22,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class AdminReclamationController {
@@ -76,29 +80,82 @@ public class AdminReclamationController {
     }
 
     private void setupColumns() {
-        titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
+        titreColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-        statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut"));
+        statutColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         genreColumn.setCellValueFactory(cellData -> {
             Genre genre = cellData.getValue().getGenre();
             return javafx.beans.binding.Bindings.createStringBinding(
                 () -> genre != null ? genre.getLibelle() : ""
             );
         });
-        dateCreationColumn.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
+        dateCreationColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        
+        // Format de la date
+        dateCreationColumn.setCellFactory(column -> new TableCell<Reclamation, LocalDateTime>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            
+            @Override
+            protected void updateItem(LocalDateTime date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) {
+                    setText(null);
+                } else {
+                    setText(formatter.format(date));
+                }
+            }
+        });
+
+        // Style pour le statut
+        statutColumn.setCellFactory(column -> new TableCell<Reclamation, String>() {
+            @Override
+            protected void updateItem(String statut, boolean empty) {
+                super.updateItem(statut, empty);
+                if (empty || statut == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(statut);
+                    switch (statut) {
+                        case "EN_ATTENTE":
+                            setStyle("-fx-text-fill: #FFA726;");
+                            break;
+                        case "EN_COURS":
+                            setStyle("-fx-text-fill: #42A5F5;");
+                            break;
+                        case "RESOLVED":
+                            setStyle("-fx-text-fill: #66BB6A;");
+                            break;
+                        default:
+                            setStyle("");
+                    }
+                }
+            }
+        });
+
+        // Wrap text dans la colonne description
+        descriptionColumn.setCellFactory(tc -> {
+            TableCell<Reclamation, String> cell = new TableCell<>();
+            Text text = new Text();
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
+            text.wrappingWidthProperty().bind(descriptionColumn.widthProperty());
+            text.textProperty().bind(cell.itemProperty());
+            return cell;
+        });
     }
 
     private void setupComboBoxes() {
-        statutComboBox.getItems().addAll("EN_ATTENTE", "EN_COURS", "RESOLUE");
+        statutComboBox.getItems().addAll("EN_ATTENTE", "EN_COURS", "RESOLVED");
         genreComboBox.setItems(genreList);
     }
 
     private void setupTableSelection() {
         reclamationTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                titreField.setText(newSelection.getTitre());
+                titreField.setText(newSelection.getTitle());
                 descriptionField.setText(newSelection.getDescription());
-                statutComboBox.setValue(newSelection.getStatut());
+                statutComboBox.setValue(newSelection.getStatus());
                 genreComboBox.setValue(newSelection.getGenre());
             }
         });
@@ -128,7 +185,7 @@ public class AdminReclamationController {
         String query = "SELECT r.*, g.libelle as genre_libelle, g.description as genre_description " +
                       "FROM reclamation r " +
                       "LEFT JOIN genre g ON r.genre_id = g.id " +
-                      "ORDER BY r.date_creation DESC";
+                      "ORDER BY r.created_at DESC";
         try (PreparedStatement pstmt = connection.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
             
@@ -144,11 +201,11 @@ public class AdminReclamationController {
                 }
                 
                 Reclamation reclamation = new Reclamation();
-                reclamation.setId(rs.getInt("id"));
-                reclamation.setTitre(rs.getString("titre"));
+                reclamation.setId(rs.getLong("id"));
+                reclamation.setTitle(rs.getString("title"));
                 reclamation.setDescription(rs.getString("description"));
-                reclamation.setStatut(rs.getString("statut"));
-                reclamation.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
+                reclamation.setStatus(rs.getString("status"));
+                reclamation.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 reclamation.setGenre(genre);
                 reclamationList.add(reclamation);
             }
@@ -168,7 +225,7 @@ public class AdminReclamationController {
         }
 
         if (validateInputs()) {
-            String query = "UPDATE reclamation SET titre = ?, description = ?, statut = ?, genre_id = ? WHERE id = ?";
+            String query = "UPDATE reclamation SET title = ?, description = ?, status = ?, genre_id = ? WHERE id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(query)) {
                 pstmt.setString(1, titreField.getText());
                 pstmt.setString(2, descriptionField.getText());
@@ -179,16 +236,16 @@ public class AdminReclamationController {
                 } else {
                     pstmt.setNull(4, java.sql.Types.INTEGER);
                 }
-                pstmt.setInt(5, selectedReclamation.getId());
+                pstmt.setLong(5, selectedReclamation.getId());
                 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
-                    selectedReclamation.setTitre(titreField.getText());
+                    selectedReclamation.setTitle(titreField.getText());
                     selectedReclamation.setDescription(descriptionField.getText());
-                    selectedReclamation.setStatut(statutComboBox.getValue());
+                    selectedReclamation.setStatus(statutComboBox.getValue());
                     selectedReclamation.setGenre(selectedGenre);
                     reclamationTable.refresh();
-                    showAlert("Succès", "La réclamation a été mise à jour", Alert.AlertType.INFORMATION);
+                    showAlert("Success", "The reclamation has been updated", Alert.AlertType.INFORMATION);
                 }
             } catch (SQLException e) {
                 showError("Erreur de mise à jour de la réclamation");
@@ -213,13 +270,13 @@ public class AdminReclamationController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             String query = "DELETE FROM reclamation WHERE id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-                pstmt.setInt(1, selectedReclamation.getId());
+                pstmt.setLong(1, selectedReclamation.getId());
                 
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
                     reclamationList.remove(selectedReclamation);
                     clearFields();
-                    showAlert("Succès", "La réclamation a été supprimée", Alert.AlertType.INFORMATION);
+                    showAlert("Success", "The reclamation has been deleted", Alert.AlertType.INFORMATION);
                 }
             } catch (SQLException e) {
                 showError("Erreur de suppression de la réclamation");
@@ -297,7 +354,7 @@ public class AdminReclamationController {
         }
         
         if (statutComboBox.getValue() == null || statutComboBox.getValue().trim().isEmpty()) {
-            errors.append("- Le statut est obligatoire\n");
+            errors.append("- Le status est obligatoire\n");
         }
 
         if (genreComboBox.getValue() == null) {

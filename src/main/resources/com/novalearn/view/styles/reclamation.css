@@ -1,0 +1,15 @@
+.chat-button {
+    -fx-background-color: #2196f3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 4;
+}
+
+.chat-button:hover {
+    -fx-background-color: #1976d2;
+}
+
+.chat-button:pressed {
+    -fx-background-color: #1565c0;
+} 

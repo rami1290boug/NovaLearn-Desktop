@@ -1,0 +1,102 @@
+/* Styles généraux */
+.settings-container {
+    -fx-background-color: white;
+}
+
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+
+/* Styles des boutons */
+.apply-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+}
+
+.cancel-button {
+    -fx-background-color: #757575;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+}
+
+/* Styles des contrôles */
+.check-box {
+    -fx-font-size: 14px;
+}
+
+.slider {
+    -fx-show-tick-labels: true;
+    -fx-show-tick-marks: true;
+}
+
+.combo-box {
+    -fx-font-size: 14px;
+    -fx-pref-width: 200;
+}
+
+/* Styles pour le mode contraste élevé */
+.high-contrast {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+.high-contrast .check-box {
+    -fx-text-fill: white;
+}
+
+.high-contrast .slider .track {
+    -fx-background-color: white;
+}
+
+.high-contrast .slider .thumb {
+    -fx-background-color: yellow;
+}
+
+/* Styles pour la mise en évidence des lignes */
+.line-highlight {
+    -fx-background-color: #FFFFE0;
+}
+
+/* Styles pour les suggestions de mots */
+.word-suggestion {
+    -fx-background-color: #E3F2FD;
+    -fx-padding: 2 5;
+    -fx-background-radius: 3;
+}
+
+/* Styles pour la synthèse vocale active */
+.text-to-speech-active {
+    -fx-background-color: #E8F5E9;
+}
+
+/* Styles pour la saisie vocale active */
+.voice-input-active {
+    -fx-background-color: #FFF3E0;
+}
+
+/* Styles pour les polices spéciales */
+.font-opendyslexic {
+    -fx-font-family: "OpenDyslexic";
+}
+
+.font-comic-sans {
+    -fx-font-family: "Comic Sans MS";
+}
+
+/* Styles pour l'espacement des lignes */
+.line-spacing-1 {
+    -fx-line-spacing: 1;
+}
+
+.line-spacing-2 {
+    -fx-line-spacing: 2;
+}
+
+.line-spacing-3 {
+    -fx-line-spacing: 3;
+} 
